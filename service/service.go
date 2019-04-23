@@ -16,7 +16,6 @@ import (
 	"github.com/rancher/kontainer-engine/drivers/eks"
 	"github.com/rancher/kontainer-engine/drivers/gke"
 	"github.com/rancher/kontainer-engine/drivers/import"
-	"github.com/rancher/kontainer-engine/drivers/rke"
 	"github.com/rancher/kontainer-engine/types"
 	"github.com/rancher/types/apis/management.cattle.io/v3"
 	"github.com/sirupsen/logrus"
@@ -31,7 +30,6 @@ var (
 		AzureKubernetesServiceDriverName:        aks.NewDriver(),
 		AmazonElasticContainerServiceDriverName: eks.NewDriver(),
 		ImportDriverName:                        kubeimport.NewDriver(),
-		RancherKubernetesEngineDriverName:       rke.NewDriver(),
 	}
 )
 
