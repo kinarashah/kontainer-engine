@@ -5,6 +5,7 @@ import (
 
 	"github.com/rancher/norman/controller"
 	"github.com/rancher/norman/objectclient"
+	"github.com/rancher/norman/resource"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -27,7 +28,17 @@ var (
 		Namespaced:   false,
 		Kind:         ListenConfigGroupVersionKind.Kind,
 	}
+
+	ListenConfigGroupVersionResource = schema.GroupVersionResource{
+		Group:    GroupName,
+		Version:  Version,
+		Resource: "listenconfigs",
+	}
 )
+
+func init() {
+	resource.Put(ListenConfigGroupVersionResource)
+}
 
 func NewListenConfig(namespace, name string, obj ListenConfig) *ListenConfig {
 	obj.APIVersion, obj.Kind = ListenConfigGroupVersionKind.ToAPIVersionAndKind()
@@ -39,7 +50,7 @@ func NewListenConfig(namespace, name string, obj ListenConfig) *ListenConfig {
 type ListenConfigList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []ListenConfig
+	Items           []ListenConfig `json:"items"`
 }
 
 type ListenConfigHandlerFunc func(key string, obj *ListenConfig) (runtime.Object, error)
@@ -138,6 +149,7 @@ func (c *listenConfigController) AddHandler(ctx context.Context, name string, ha
 }
 
 func (c *listenConfigController) AddClusterScopedHandler(ctx context.Context, name, cluster string, handler ListenConfigHandlerFunc) {
+	resource.PutClusterScoped(ListenConfigGroupVersionResource)
 	c.GenericController.AddHandler(ctx, name, func(key string, obj interface{}) (interface{}, error) {
 		if obj == nil {
 			return handler(key, nil)
