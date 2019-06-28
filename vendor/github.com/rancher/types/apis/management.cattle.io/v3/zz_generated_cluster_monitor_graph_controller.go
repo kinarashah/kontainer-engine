@@ -5,6 +5,7 @@ import (
 
 	"github.com/rancher/norman/controller"
 	"github.com/rancher/norman/objectclient"
+	"github.com/rancher/norman/resource"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -28,7 +29,17 @@ var (
 
 		Kind: ClusterMonitorGraphGroupVersionKind.Kind,
 	}
+
+	ClusterMonitorGraphGroupVersionResource = schema.GroupVersionResource{
+		Group:    GroupName,
+		Version:  Version,
+		Resource: "clustermonitorgraphs",
+	}
 )
+
+func init() {
+	resource.Put(ClusterMonitorGraphGroupVersionResource)
+}
 
 func NewClusterMonitorGraph(namespace, name string, obj ClusterMonitorGraph) *ClusterMonitorGraph {
 	obj.APIVersion, obj.Kind = ClusterMonitorGraphGroupVersionKind.ToAPIVersionAndKind()
@@ -40,7 +51,7 @@ func NewClusterMonitorGraph(namespace, name string, obj ClusterMonitorGraph) *Cl
 type ClusterMonitorGraphList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []ClusterMonitorGraph
+	Items           []ClusterMonitorGraph `json:"items"`
 }
 
 type ClusterMonitorGraphHandlerFunc func(key string, obj *ClusterMonitorGraph) (runtime.Object, error)
@@ -139,6 +150,7 @@ func (c *clusterMonitorGraphController) AddHandler(ctx context.Context, name str
 }
 
 func (c *clusterMonitorGraphController) AddClusterScopedHandler(ctx context.Context, name, cluster string, handler ClusterMonitorGraphHandlerFunc) {
+	resource.PutClusterScoped(ClusterMonitorGraphGroupVersionResource)
 	c.GenericController.AddHandler(ctx, name, func(key string, obj interface{}) (interface{}, error) {
 		if obj == nil {
 			return handler(key, nil)
